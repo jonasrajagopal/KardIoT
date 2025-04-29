@@ -5,8 +5,8 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-    int x = analogRead(0);
-    int t = millis();
+    unsigned int x = analogRead(0);
+    unsigned int t = millis();
     Serial.print(t);
     Serial.print(',');
 
