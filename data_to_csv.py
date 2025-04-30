@@ -1,10 +1,11 @@
 from serial import Serial
-ser = Serial('/dev/ttyUSB0', 9600)
+import sys
+ser = Serial(sys.argv[1], 9600)
 
 while True:
     data = ser.readline()
     if data:
         try:
-            print(data.decode().strip())
+            print(data.decode().strip(), flush=True)
         except:
             pass
