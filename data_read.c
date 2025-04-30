@@ -53,36 +53,6 @@ int init_serial(const char *device) {
     return fd;
 }
 
-void draw_plot(SDL_Renderer *renderer) {
-    if (pointCount < 2) return;
-
-    // Find min and max Y
-    int minY = points[0].y;
-    int maxY = points[0].y;
-    for (int i = 1; i < pointCount; i++) {
-        if (points[i].y < minY) minY = points[i].y;
-        if (points[i].y > maxY) maxY = points[i].y;
-    }
-
-    int yRange = maxY - minY;
-    if (yRange == 0) yRange = 1;  // Avoid division by zero
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear background
-    SDL_RenderClear(renderer);
-
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green line
-
-    for (int i = 1; i < pointCount; i++) {
-        int x1 = points[i - 1].x;
-        int y1 = HEIGHT - ((points[i - 1].y - minY) * HEIGHT / yRange);
-        int x2 = points[i].x;
-        int y2 = HEIGHT - ((points[i].y - minY) * HEIGHT / yRange);
-        if (x2 < x1) continue;
-        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-    }
-
-    SDL_RenderPresent(renderer);
-}
 
 
 int main(int argc, char *argv[]) {
