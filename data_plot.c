@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define WIDTH 800
+#define WIDTH 2400
 #define HEIGHT 600
-#define MAX_POINTS 500
+#define MAX_POINTS 200
 
 typedef struct {
     int x, y;
@@ -54,22 +54,47 @@ int init_serial(const char *device) {
 }
 
 void draw_plot(SDL_Renderer *renderer) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    if (pointCount < 2) return;
+
+    // Find min and max Y
+    int minY = points[0].y;
+    int maxY = points[0].y;
+    for (int i = 1; i < pointCount; i++) {
+        if (points[i].y < minY) minY = points[i].y;
+        if (points[i].y > maxY) maxY = points[i].y;
+    }
+
+    int yRange = maxY - minY;
+    if (yRange == 0) yRange = 1;  // Avoid division by zero
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Clear background
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green line
 
     for (int i = 1; i < pointCount; i++) {
-        SDL_RenderDrawLine(renderer,
-                           points[i - 1].x, HEIGHT - points[i - 1].y,
-                           points[i].x, HEIGHT - points[i].y);
+        int x1 = points[i - 1].x;
+        int y1 = HEIGHT - ((points[i - 1].y - minY) * HEIGHT / yRange);
+        int x2 = points[i].x;
+        int y2 = HEIGHT - ((points[i].y - minY) * HEIGHT / yRange);
+        if (x2 < x1) continue;
+        SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
     }
 
     SDL_RenderPresent(renderer);
 }
 
+
 int main(int argc, char *argv[]) {
-    int fd = init_serial("/dev/ttyUSB0");
+    if (argc != 3) {
+        printf("Usage: ./data_plot [serial port] [output file]\n");
+        return -1;
+    }
+
+    // int fd = init_serial("/dev/ttyUSB0");
+    int fd = init_serial(argv[1]);
+    FILE *outf = fopen(argv[2],"w");
+
     if (fd < 0) return 1;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -89,6 +114,8 @@ int main(int argc, char *argv[]) {
 
     int quit = 0;
     SDL_Event e;
+    
+    int start = 0;
 
     while (!quit) {
         // Handle window close
@@ -100,10 +127,12 @@ int main(int argc, char *argv[]) {
         if (read(fd, &ch, 1) > 0) {
             if (ch == '\n' || ch == '\r') {
                 buffer[buf_index] = '\0';
-                buf_index = 0;
+                buf_index = 0; 
 
                 int t, y;
                 if (sscanf(buffer, "%d,%d", &t, &y) == 2) {
+                    if (t==0) start = 1;
+                    if (start == 0) continue;
                     if (pointCount < MAX_POINTS) {
                         points[pointCount].x = t % WIDTH;
                         points[pointCount].y = y % HEIGHT;
@@ -113,17 +142,21 @@ int main(int argc, char *argv[]) {
                         points[MAX_POINTS - 1].x = t % WIDTH;
                         points[MAX_POINTS - 1].y = y % HEIGHT;
                     }
-                    draw_plot(renderer);
+                    printf("%d,%d\n",t,y);
+                    fprintf(outf, "%d,%d\n",t,y);
+                    if (t%(WIDTH>>3) < 5)
+                        draw_plot(renderer);
                 }
             } else if (buf_index < sizeof(buffer) - 1) {
                 buffer[buf_index++] = ch;
             }
         }
 
-        SDL_Delay(10);
+        // SDL_Delay(10);
     }
 
     close(fd);
+    fclose(outf);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

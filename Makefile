@@ -1,1 +1,3 @@
-gcc -o serial_plot_sdl data_plot.c -lSDL2
+all:
+	gcc -o data_plot data_plot.c -lSDL2
+
