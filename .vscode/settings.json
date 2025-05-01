@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.ms": "bluespec",
+        "sdl.h": "c"
+    }
+}

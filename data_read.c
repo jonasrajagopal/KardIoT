@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+// #include <SDL2/SDL.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
@@ -16,6 +16,7 @@ typedef struct {
 
 Point points[MAX_POINTS];
 int pointCount = 0;
+
 
 int init_serial(const char *device) {
     int fd = open(device, O_RDWR | O_NOCTTY | O_SYNC);
@@ -83,9 +84,11 @@ int main(int argc, char *argv[]) {
     memset(buffer, 0, sizeof(buffer));
 
     int quit = 0;
-    SDL_Event e;
     
     int start = 0;
+
+    int i = 0;
+
 
     while (1) {
         // Handle window close
@@ -113,7 +116,11 @@ int main(int argc, char *argv[]) {
                     //     points[MAX_POINTS - 1].y = y % HEIGHT;
                     // }
                     printf("%d,%d\n",t,y);
-                    fflush(stdout);
+                    if (i==10){
+                        fflush(stdout);
+                        i = 0;
+                    }
+                    i++;
                     // fprintf(outf, "%d,%d\n",t,y);
                     // if (t%(WIDTH>>3) < 5)
                     //     draw_plot(renderer);
