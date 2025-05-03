@@ -22,8 +22,8 @@ try:
             T.append(t)
             Y.append(y)
             if (len(Y)<100): continue
-            # T = T[-300:]
-            # Y = Y[-300:]
+            T = T[-300:]
+            Y = Y[-300:]
             amplitude = np.array(Y)
             time = np.array(T)
             dt = np.mean(np.diff(time))  # or use np.mean(np.diff(time)) if it's not perfectly uniform
@@ -47,7 +47,7 @@ try:
 
             smoothed_amplitude = moving_average(amplitude_spectrum, w=5)  # Adjust window size as needed
 
-            start = 15
+            start = 1
             end = int(len(xf) / 3)
             # print(max(smoothed_amplitude[start:end]))
             # print(np.argmax(smoothed_amplitude[start:end]))
