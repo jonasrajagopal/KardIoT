@@ -24,8 +24,8 @@ try:
             if (len(Y)<100): continue
             T = T[-300:]
             Y = Y[-300:]
-            amplitude = np.array(Y)
-            time = np.array(T)
+            amplitude = np.tile(Y,10)
+            time = np.tile(T,10)
             dt = np.mean(np.diff(time))  # or use np.mean(np.diff(time)) if it's not perfectly uniform
 
 
