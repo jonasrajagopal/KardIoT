@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
                     //     points[MAX_POINTS - 1].y = y % HEIGHT;
                     // }
                     printf("%d,%d\n",t,y);
-                    if (i==10){
+                    if (!(i&(8))){
                         fflush(stdout);
                         i = 0;
                     }
