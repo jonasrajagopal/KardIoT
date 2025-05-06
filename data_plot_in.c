@@ -8,13 +8,19 @@
 
 #define WIDTH 2400
 #define HEIGHT 600
-#define MAX_POINTS 200
+#define MAX_POINTS 2500
 
 typedef struct {
     int x, y;
 } Point;
 
+typedef struct {
+    float x, y;
+} PointSmooth;
+
 Point points[MAX_POINTS];
+float baselines[MAX_POINTS];
+PointSmooth points_smooth[MAX_POINTS];
 int pointCount = 0;
 
 void draw_plot(SDL_Renderer *renderer) {
@@ -36,13 +42,57 @@ void draw_plot(SDL_Renderer *renderer) {
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green line
 
+    int avg = 8;
+    int baseline = avg*40;
+    for (int i=baseline-1; i<pointCount-baseline; i++) {
+        baselines[i] = 0;
+        for (int j = -1*baseline ; j < baseline ; j++) {
+            baselines[i]  += points[i+j].y;
+        }
+        baselines[i] /= 2.0*baseline;
+    }
+
+    for (int i=avg-1; i<pointCount-avg; i++) {
+        points_smooth[i].x = 0;
+        points_smooth[i].y = 0;
+        for (int j = -1*avg ; j < avg ; j ++) {
+            points_smooth[i].x  += points[i+j].x;
+            points_smooth[i].y  += points[i+j].y;
+        }
+        points_smooth[i].x /= 2.0*avg;
+        points_smooth[i].y /= 2.0*avg;
+
+        points_smooth[i].y += -1.0*baselines[i] + minY + yRange/2;
+    }
+
+    // int minYS = points_smooth[0].y;
+    // int maxYS = points_smooth[0].y;
+    // for (int i = 1; i < pointCount; i++) {
+    //     if (points_smooth[i].y < minY) minYS = points_smooth[i].y;
+    //     if (points_smooth[i].y > maxY) maxYS = points_smooth[i].y;
+    // }
+
+    // int yRangeS = maxYS - minYS;
+    // if (yRangeS == 0) yRangeS = 1;  // Avoid division by zero
+
     for (int i = 1; i < pointCount; i++) {
+        SDL_SetRenderDrawColor(renderer, 255,0, 0, 50); // Red line
         int x1 = points[i - 1].x;
         int y1 = HEIGHT - ((points[i - 1].y - minY) * HEIGHT / yRange);
         int x2 = points[i].x;
         int y2 = HEIGHT - ((points[i].y - minY) * HEIGHT / yRange);
         if (x2 < x1) continue;
         SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green line
+        if (i > avg) {
+            x1 = (int)points_smooth[i - 1].x;
+            y1 = HEIGHT - ((points_smooth[i - 1].y - minY) * HEIGHT / (yRange*1.0));
+            x2 = (int)points_smooth[i].x;
+            y2 = HEIGHT - ((points_smooth[i].y - minY) * HEIGHT / (yRange*1.0));
+            if (x2 < x1) continue;
+            SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
+        }
     }
 
     SDL_RenderPresent(renderer);
@@ -109,7 +159,7 @@ int main(int argc, char *argv[]) {
                     }
                     printf("%d,%d\n",t,y);
                     fprintf(outf, "%d,%d\n",t,y);
-                    // if (t%(WIDTH>>3) < 5)
+                    if (t%(WIDTH>>6) < 3)
                         draw_plot(renderer);
                 }
             } else if (buf_index < sizeof(buffer) - 1) {
