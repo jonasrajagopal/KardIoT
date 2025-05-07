@@ -23,8 +23,8 @@ try:
             T_arr.append(t)
             Y_arr.append(y)
             if (len(Y_arr)<100): continue
-            T_arr = T_arr[-1000:]
-            Y_arr = Y_arr[-1000:]
+            T_arr = T_arr[-300:]
+            Y_arr = Y_arr[-300:]
             T = np.array(T_arr)
             Y = np.array(Y_arr)
 

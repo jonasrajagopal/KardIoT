@@ -8,7 +8,7 @@
 
 #define WIDTH 2400
 #define HEIGHT 600
-#define MAX_POINTS 2500
+#define MAX_POINTS 200
 
 typedef struct {
     int x, y;
@@ -42,7 +42,7 @@ void draw_plot(SDL_Renderer *renderer) {
 
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green line
 
-    int avg = 8;
+    int avg = 2;
     int baseline = avg*40;
     for (int i=baseline-1; i<pointCount-baseline; i++) {
         baselines[i] = 0;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
                     }
                     printf("%d,%d\n",t,y);
                     fprintf(outf, "%d,%d\n",t,y);
-                    if (t%(WIDTH>>6) < 3)
+                    // if (t%(WIDTH>>6) < 3)
                         draw_plot(renderer);
                 }
             } else if (buf_index < sizeof(buffer) - 1) {

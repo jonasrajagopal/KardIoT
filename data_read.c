@@ -31,8 +31,8 @@ int init_serial(const char *device) {
         return -1;
     }
 
-    cfsetospeed(&tty, B115200);
-    cfsetispeed(&tty, B115200);
+    cfsetospeed(&tty, B9600);
+    cfsetispeed(&tty, B9600);
 
     tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;
     tty.c_iflag &= ~IGNBRK;
