@@ -44,6 +44,9 @@ void draw_plot(SDL_Renderer *renderer) {
 
     int avg = 2;
     int baseline = avg*40;
+    for (int i=0; i<pointCount; i++) {
+        baselines[i] = minY + yRange/2;
+    }
     for (int i=baseline-1; i<pointCount-baseline; i++) {
         baselines[i] = 0;
         for (int j = -1*baseline ; j < baseline ; j++) {
@@ -52,7 +55,7 @@ void draw_plot(SDL_Renderer *renderer) {
         baselines[i] /= 2.0*baseline;
     }
 
-    for (int i=avg-1; i<pointCount-avg; i++) {
+    for (int i=avg; i<pointCount-avg; i++) {
         points_smooth[i].x = 0;
         points_smooth[i].y = 0;
         for (int j = -1*avg ; j < avg ; j ++) {
